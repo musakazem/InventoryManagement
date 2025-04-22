@@ -4,8 +4,14 @@
 void drawTitle();
 void drawMainMenu();
 void drawBorder();
+void drawProductBorder();
 void addProductMenu();
 void clearScreen();
+void flushInputBuffer();
+void userStringInput();
+void userIntegerInput();
+void userFloatInput();
+void listProducts();
 
 struct Product {
     char name[30];
@@ -22,8 +28,13 @@ int main()
     while (runProgram == 1) {
         clearScreen();
         drawTitle();
-        drawMainMenu();
+        printf("Total products: %d\n", lastItemIndex);
 
+        if (lastItemIndex > 0) {
+            listProducts(products, lastItemIndex);
+        }
+
+        drawMainMenu();
         int menuNumber;
         scanf_s("%d", &menuNumber);
 
@@ -44,21 +55,31 @@ void addProductMenu(struct Product products[], int *lastItemIndex) {
     clearScreen();
     printf("Adding a new product\n");
     drawBorder();
+    
     struct Product item;
 
     printf("Product name:\n");
-    fgets(item.name, sizeof(item.name), stdin);
+    userStringInput(item.name, sizeof(item.name));
+    
+    printf("Product quantity:\n");
+    userIntegerInput(&item.quantity);
 
     printf("Product price:\n");
-    scanf_s("%f", &item.price);
-
-    printf("Product quantity:\n");
-    scanf_s("%d", &item.quantity);
+    userFloatInput(&item.price);
 
     products[*lastItemIndex] = item;
     *lastItemIndex += 1;
 
-    printf("Successfully added a new product");
+    printf("Successfully added a new product\n");
+}
+
+void listProducts(struct Product products[], int lastItemIndex) {
+    for (int i = 0; i < lastItemIndex; i++) {
+        drawProductBorder();
+        printf("name: %s\n", products[i].name);
+        printf("quantity: %d\n", products[i].quantity);
+        printf("price: %.2f\n", products[i].price);
+    }
 }
 
 void drawMainMenu() {
@@ -67,14 +88,38 @@ void drawMainMenu() {
     printf("2. Update \n");
     printf("3. Delete \n");
     printf("0. Quit Program \n");
-}
+ }
 
 void drawBorder() {
-    printf("------------------------------------ \n");
+    printf("********************************* \n");
+}
+
+void drawProductBorder() {
+    printf("------------- \n");
 }
 
 void clearScreen() {
     system("cls");
+}
+
+void userStringInput(char str[], int size) {
+    scanf_s("%s", str, size);
+    flushInputBuffer();
+}
+
+void userIntegerInput(int *value) {
+    scanf_s("%d", value);
+    flushInputBuffer();
+}
+
+void userFloatInput(int *value) {
+    scanf_s("%f", value);
+    flushInputBuffer();
+}
+
+void flushInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
 void drawTitle() {
